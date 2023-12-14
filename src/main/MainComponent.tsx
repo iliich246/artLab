@@ -2,10 +2,18 @@ import React, { useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { Box, Typography } from "@mui/material";
 import * as THREE from "three";
+import * as dat from "dat.gui";
 
 function MainComponent() {
   const threeContainer = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    const state = {
+      cubeX: 0.01,
+      cubeY: 0.01
+    }
+    const gui = new dat.GUI();
+    gui.add(state, 'cubeX', -0.05, 0.05, 0.01);
+    gui.add(state, 'cubeY', -0.05, 0.05, 0.01);
     var scene = new THREE.Scene();
     var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     var renderer = new THREE.WebGLRenderer();
@@ -20,8 +28,8 @@ function MainComponent() {
     camera.position.z = 5;
     var animate = function () {
       requestAnimationFrame(animate);
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+      cube.rotation.x += state.cubeX;
+      cube.rotation.y += state.cubeY;
       renderer.render(scene, camera);
     };
     animate();

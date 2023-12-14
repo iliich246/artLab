@@ -32,7 +32,7 @@ function MainComponent() {
     <Box sx={{
       width: '100%',
       height: '100%',
-      backgroundColor: "#ccc"
+      backgroundColor: "transparent",
     }}>
       <Typography sx={{
         color: "#fff",
@@ -45,7 +45,8 @@ function MainComponent() {
         sx={{
           position: "absolute",
           top: 0,
-          height: "100vh"
+          height: "100vh",
+          zIndex: -1
         }}
       />      
     </Box>

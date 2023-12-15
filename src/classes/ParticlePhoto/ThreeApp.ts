@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { ParticlePhoto } from "./ParticlePhoto";
+import Particles from "./Particles";
 
 export default class ThreeApp {
   particlePhoto: ParticlePhoto;
@@ -11,6 +12,8 @@ export default class ThreeApp {
   renderer: THREE.WebGLRenderer | undefined;
 
   clock: THREE.Clock | undefined;
+
+  particles: Particles | undefined;
 
   constructor(particlePhoto: ParticlePhoto) {
     this.particlePhoto = particlePhoto;
@@ -32,7 +35,8 @@ export default class ThreeApp {
   }
 
   initParticles() {
-
+    this.particles = new Particles(this);
+    this.scene?.add(this.particles.container as THREE.Object3D);
   }
     
   

@@ -26,11 +26,37 @@ export default class Particles {
 			this.width = texture.image.width;
 			this.height = texture.image.height;
 
-			// this.initPoints(true);
+			this.initPoints(true);
 			// this.initHitArea();
 			// this.initTouch();
 			// this.resize();
 			// this.show();
 		});
+  }
+
+  initPoints(discard: boolean) {
+    const numPoints = (this.width || 0) * (this.height || 0);
+
+    let numVisible = numPoints;
+		let threshold = 0;
+		let originalColors;
+
+    if (discard) {
+      numVisible = 0;
+			threshold = 34;
+
+      const img = this.texture?.image;
+			const canvas = document.createElement('canvas');
+			const ctx = canvas.getContext('2d');
+
+      canvas.width = this.width as number;
+			canvas.height = this.height as number;
+			ctx?.scale(1, -1);
+			ctx?.drawImage(img, 0, 0, this.width as number, this.height as number * -1);
+
+      const imgData = ctx?.getImageData(0, 0, canvas.width, canvas.height);
+			originalColors = Float32Array.from(imgData?.data);
+    }
+
   }
 }

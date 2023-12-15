@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import Image from 'next/image';
 import { Box, Grid } from "@mui/material";
-import MainComponent from "@/src/main/MainComponent";
+import MainComponent from "@/src/components/main/MainComponent";
 import TWEEN from "@tweenjs/tween.js";
 
 export default function Home() {  

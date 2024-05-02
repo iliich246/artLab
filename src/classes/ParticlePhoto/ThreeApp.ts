@@ -37,7 +37,6 @@ export default class ThreeApp {
   initParticles() {
     this.particles = new Particles(this);
     this.scene?.add(this.particles.container as THREE.Object3D);
-  }
-    
+  }   
   
 }

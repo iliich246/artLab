@@ -69,5 +69,4 @@ function MainComponent() {
     </Box>
   )
 }
-
 export default observer(MainComponent);

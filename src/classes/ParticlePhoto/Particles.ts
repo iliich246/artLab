@@ -1,7 +1,12 @@
 import * as THREE from "three";
 import ThreeApp from "./ThreeApp";
+import vertShader from "./shaders/particle.vert";
+import fragShader from "./shaders/particle.frag";
 
 const glslify = require("glslify");
+// import ss from "./shaders/particle.frag";
+// const s = glslify(ss);
+ console.log([`XXX`, glslify(vertShader)]);
 
 export default class Particles {
   threeApp: ThreeApp | undefined;
@@ -10,6 +15,16 @@ export default class Particles {
   texture: THREE.Texture | undefined;
   width: number | undefined;
   height: number | undefined;
+
+	uniforms = {
+		uTime: { value: 0 },
+		uRandom: { value: 1.0 },
+		uDepth: { value: 2.0 },
+		uSize: { value: 0.0 },
+		uTextureSize: { value: null },
+		uTexture: { value: null },
+		uTouch: { value: null },
+	}
 
 
   constructor(threeApp: ThreeApp) {
@@ -65,22 +80,30 @@ export default class Particles {
 			}
     //}
 
-    const uniforms = {
-			uTime: { value: 0 },
-			uRandom: { value: 1.0 },
-			uDepth: { value: 2.0 },
-			uSize: { value: 0.0 },
-			uTextureSize: { value: new THREE.Vector2(this.width, this.height) },
-			uTexture: { value: this.texture },
-			uTouch: { value: null },
-		};
+    // const uniforms = {
+		// 	uTime: { value: 0 },
+		// 	uRandom: { value: 1.0 },
+		// 	uDepth: { value: 2.0 },
+		// 	uSize: { value: 0.0 },
+		// 	uTextureSize: { value: new THREE.Vector2(this.width, this.height) },
+		// 	uTexture: { value: this.texture },
+		// 	uTouch: { value: null },
+		// };
+
+		this.uniforms.uTextureSize.value = new THREE.Vector2(this.width, this.height);
+		this.uniforms.uTexture.value = this.texture;
+
+		//const x = glslify(require("./shaders"));
+		const x = 1;
+		console.log([`XXX`, x]);
+		
 
 		const material = new THREE.RawShaderMaterial({
-			uniforms,
-			vertexShader: glslify(require("./shaders/particle.vert")),
-			fragmentShader: glslify(require("./shaders/particle.frag")),
+			uniforms: this.uniforms,
+			vertexShader: glslify(vertShader),
+			fragmentShader: glslify(fragShader),
 			depthTest: false,
-			transparent: true,
+			transparent: false,
 		});
 
 		const geometry = new THREE.InstancedBufferGeometry();
@@ -100,6 +123,9 @@ export default class Particles {
 		uvs.setXYZ(2, 0.0, 1.0, 0.0);
 		uvs.setXYZ(3, 1.0, 1.0, 0.0);
 		geometry.setAttribute("uv", uvs);
+
+		
+		
 
 		// index
 		geometry.setIndex(
@@ -123,6 +149,7 @@ export default class Particles {
 			j++;
 		}
 	
+		console.log([`XXX`, originalColors]);
 		geometry.setAttribute(
 			"pindex",
 			new THREE.InstancedBufferAttribute(indices, 1, false)
@@ -137,7 +164,8 @@ export default class Particles {
 		);
 	
 		this.object3D = new THREE.Mesh(geometry, material);
-		this.container.add(this.object3D);	
-
+		console.log([`XXX`, this.object3D]);
+		
+		this.container.add(this.object3D); 
   }
 }

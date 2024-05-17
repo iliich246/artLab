@@ -4,7 +4,9 @@ import { Box, Typography } from "@mui/material";
 import * as THREE from "three";
 import * as dat from "dat.gui";
 
-import particlePhoto from "@/src/classes/ParticlePhoto/ParticlePhoto";
+
+// import particlePhoto from "@/src/classes/ParticlePhoto/ParticlePhoto";
+import interactiveParticles from "@/src/classes/InteractiveParticles/InteractiveParticles";
 
 function MainComponent() {
   const threeContainer = useRef<HTMLDivElement>(null);
@@ -38,11 +40,19 @@ function MainComponent() {
     
   // }, []);
 
+  // useEffect(() => {
+  //   if (!threeContainer.current) return;
+  //   console.log([`XXX`, '1']);
+    
+  //   particlePhoto.setThreeContainer(threeContainer.current);
+  //   particlePhoto.initialization();
+  // }, []);
+
   useEffect(() => {
     if (!threeContainer.current) return;
 
-    particlePhoto.setThreeContainer(threeContainer.current);
-    particlePhoto.initialization();
+    interactiveParticles.setThreeContainer(threeContainer.current);
+    interactiveParticles.initialization();
   }, []);
 
   return (
@@ -58,6 +68,7 @@ function MainComponent() {
         Main
       </Typography>
       <Box 
+        id="three-container"
         ref={threeContainer} 
         sx={{
           position: "absolute",

@@ -104,7 +104,7 @@ abstract class AbstractAnimator {
     const tweenAnimateLoop = () => {
       requestAnimationFrame(tweenAnimateLoop);
       TWEEN.update();
-
+      
       AbstractAnimator.instances.forEach(instance => {
         if (instance.parent) return;
 

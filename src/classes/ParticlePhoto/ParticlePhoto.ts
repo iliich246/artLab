@@ -18,7 +18,6 @@ export class ParticlePhoto extends ThreeAnimator {
     super.initialization();
 
     this.threeApp = new ThreeApp(this);
-
   }
 
   render() {

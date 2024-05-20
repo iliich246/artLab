@@ -1,12 +1,24 @@
 import * as THREE from "three";
 import ThreeAnimator from "../AnimationBuilder/ThreeAnimator";
 import image from "../../assets/sample-02.png";
-import tusk from "../../assets/tusk.png";
+import TouchTexture from "./TouchTexture";
+import ThreeControls from "../AnimationBuilder/ThreeControls";
 
 const glslify = require('glslify');
 
 import vertShader from "./shaders/particle.vert";
 import fragShader from "./shaders/particle.frag";
+
+
+type InteractiveParticlesUniforms = {
+  uTime: { value: number };
+  uRandom: { value: number };
+  uDepth: { value: number };
+  uSize: { value: number };
+  uTextureSize: { value: THREE.Vector2 };
+  uTexture: { value: THREE.Texture | null };
+  uTouch: { value: THREE.Texture | null };
+};
 
 export class InteractiveParticles extends ThreeAnimator{
 
@@ -15,16 +27,18 @@ export class InteractiveParticles extends ThreeAnimator{
   scene: THREE.Scene | undefined;
   camera: THREE.PerspectiveCamera | undefined;
   renderer: THREE.WebGLRenderer | undefined;
-
   texture: THREE.Texture | undefined;
+  touchTexture: TouchTexture | undefined;
+  hitArea: THREE.Mesh | undefined;
+
+  fovHeight: number = 0; 
+  threeControls: ThreeControls | undefined;
 
   width: number = 0;
-
   height: number = 0;
-
   numPoints: number = 0;
 
-  uniforms = {
+  uniforms: InteractiveParticlesUniforms = {
     uTime: { value: 0 },
     uRandom: { value: 1.0 },
     uDepth: { value: 2.0 },
@@ -60,11 +74,12 @@ export class InteractiveParticles extends ThreeAnimator{
 
       this.initThree();
       this.initPoints();
+      this.initTouch();
+      this.initHitArea();
       this.startSequence();
     });
 
     this.scene = new THREE.Scene();
-
   }
 
   initThree() {
@@ -75,6 +90,9 @@ export class InteractiveParticles extends ThreeAnimator{
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.threeContainer?.appendChild(this.renderer.domElement);
     this.scene.add(this.container as THREE.Object3D);
+    this.fovHeight = 2 * Math.tan((this.camera.fov * Math.PI) / 180 / 2) * this.camera.position.z;
+    
+  
   }
 
   initPoints() {
@@ -115,17 +133,7 @@ export class InteractiveParticles extends ThreeAnimator{
       if (originalColors[i * 4 + 0] > threshold) numVisible++;
     }
 
-		const uniforms = {
-			uTime: { value: 0 },
-			uRandom: { value: 1.0 },
-			uDepth: { value: 2.0 },
-			uSize: { value: 1.90 },
-			uTextureSize: { value: new THREE.Vector2(this.width, this.height) },
-			uTexture: { value: this.texture },
-			uTouch: { value: null },
-		};
-
-    this.uniforms.uTexture.value = this.texture;
+    this.uniforms.uTexture.value = this.texture as THREE.Texture;
     this.uniforms.uTextureSize.value = new THREE.Vector2(this.width, this.height);
     
 		const material = new THREE.RawShaderMaterial({
@@ -191,10 +199,36 @@ export class InteractiveParticles extends ThreeAnimator{
 		this.container?.add(this.object3D);
   }
 
+  initTouch() {
+    this.touchTexture = new TouchTexture(this);
+    this.uniforms.uTouch.value = this.touchTexture.texture;
+  }
+
+  initHitArea() {
+    const geometry = new THREE.PlaneGeometry(this.width, this.height, 1, 1);
+    const material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, wireframe: true, depthTest: false });
+		material.visible = false;
+		this.hitArea = new THREE.Mesh(geometry, material);
+		this.container?.add(this.hitArea);
+
+    setTimeout(() => {
+      console.log([`XXX`, this.renderer?.domElement]);
+      
+      this.renderer.domElement.tabIndex = 1;
+      this.renderer.domElement.focus();
+    }, 0);
+    setTimeout(() => {
+      console.log([`XXX`, 'hitArea', this.hitArea]);
+      
+      this.threeControls = new ThreeControls(this, this.camera as THREE.Camera, this.renderer?.domElement as HTMLElement);
+      this.threeControls?.objects.push(this.hitArea);
+      this.renderer.domElement.focus();
+      this.threeControls?.enable();
+    }, 0);  
+
+  }
+
   render() {
-    //this.camera.updateProjectionMatrix();
-    // console.log([`XXX`, this.object3D]);
-    //this.object3D?.material.uniforms.uTime.value = 0.01;
     this.uniforms.uTime.value += 0.01;
     this.uniforms.uSize.value = Math.random() * 0.1 + 0.5;
     this.uniforms.uDepth.value = Math.random() * 0.1 + 0.5;
@@ -202,6 +236,29 @@ export class InteractiveParticles extends ThreeAnimator{
   }
 
   protected resize(): void {
+    if (!this.object3D) {
+      throw Error("object3D not initialized");
+    };
+
+    if (!this.camera) {
+      throw Error("camera not initialized");
+    };
+
+    if (!this.renderer) {
+      throw Error("renderer not initialized");
+    };
+
+    if (!this.hitArea) {
+      throw Error("hitArea not initialized");
+    }
+
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+    this.fovHeight = 2 * Math.tan((this.camera.fov * Math.PI) / 180 / 2) * this.camera.position.z;
+    const scale = this.fovHeight / this.height;
+    this.object3D.scale.set(scale, scale, 1);
+		this.hitArea.scale.set(scale, scale, 1);
+
       
   }
 }

@@ -10,6 +10,7 @@ import interactiveParticles from "@/src/classes/InteractiveParticles/Interactive
 
 function MainComponent() {
   const threeContainer = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
   // useEffect(() => {
   //   const state = {
   //     cubeX: 0.01,
@@ -52,6 +53,7 @@ function MainComponent() {
     if (!threeContainer.current) return;
 
     interactiveParticles.setThreeContainer(threeContainer.current);
+    //interactiveParticles.setC(canvas.current as HTMLCanvasElement);
     interactiveParticles.initialization();
   }, []);
 
@@ -76,7 +78,7 @@ function MainComponent() {
           height: "100vh",
           zIndex: -1
         }}
-      />      
+      />
     </Box>
   )
 }

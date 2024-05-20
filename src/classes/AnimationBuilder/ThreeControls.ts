@@ -18,6 +18,8 @@ export default class ThreeControls {
   intersectionData: any;
   enabled: boolean = false;
 
+  cir: THREE.Mesh | undefined;
+
   rect: {
     x: number;
     y: number;
@@ -83,13 +85,13 @@ export default class ThreeControls {
   addListeners = () => {
     if (!this.domElement) return;
 
-    this.domElement.addEventListener('mousemove', this.onMouseMove);
+    document.body.addEventListener('mousemove', this.onMouseMove);
   }
 
   removeListeners = () =>  {
     if (!this.domElement) return;
 
-    this.domElement.removeEventListener('mousemove', this.onMouseMove);
+    document.body.removeEventListener('mousemove', this.onMouseMove);
   }
 
   onMouseMove = (event: MouseEvent) => {
@@ -101,7 +103,7 @@ export default class ThreeControls {
     this.raycaster.setFromCamera(this.mouse, this.camera as THREE.Camera);
 
     const intersects = this.raycaster.intersectObjects(this.objects);
-    console.log([`XXX`, intersects]);
+    
     
 		if (intersects.length > 0) {
 			const object = intersects[0].object;
@@ -110,7 +112,8 @@ export default class ThreeControls {
       const camera = this.camera as THREE.Camera;
 
 			this.plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this.plane.normal), object.position);
-
+      this.cir?.position.set(intersects[0].point.x, intersects[0].point.y, 0); 
+      console.log([`XXX`, intersects[0].point.x, intersects[0].point.y]);   
 			// if (this.hovered !== object) {
 			// 	this.emit('interactive-out', { object: this.hovered });
 			// 	this.emit('interactive-over', { object });

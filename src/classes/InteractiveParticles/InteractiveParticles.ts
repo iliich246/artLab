@@ -48,8 +48,14 @@ export class InteractiveParticles extends ThreeAnimator{
     uTouch: { value: null },
   };
 
+  canvas: HTMLCanvasElement | undefined;
+
   constructor() {
     super();
+  }
+
+  setC(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
   }
 
   initialization() {
@@ -86,7 +92,9 @@ export class InteractiveParticles extends ThreeAnimator{
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
     this.camera.position.z = 300;
-    this.renderer = new THREE.WebGLRenderer();
+    this.renderer = new THREE.WebGLRenderer({
+      //canvas: this.canvas,
+    });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.threeContainer?.appendChild(this.renderer.domElement);
     this.scene.add(this.container as THREE.Object3D);
@@ -176,7 +184,7 @@ export class InteractiveParticles extends ThreeAnimator{
 			offsets[j * 3 + 1] = Math.floor(i / this.width);
 	
 			indices[j] = i;
-	
+	 
 			angles[j] = Math.random() * Math.PI;
 	
 			j++;
@@ -211,11 +219,17 @@ export class InteractiveParticles extends ThreeAnimator{
 		this.hitArea = new THREE.Mesh(geometry, material);
 		this.container?.add(this.hitArea);
 
+    const c_g = new THREE.CircleGeometry(10, 32);
+    const c_m = new THREE.MeshBasicMaterial({ color: 0x00FF00, wireframe: true, depthTest: false });
+    const c = new THREE.Mesh(c_g, c_m);
+    c.position.set(100, 0, 0);
+    this.container?.add(c);
+
     setTimeout(() => {
       console.log([`XXX`, this.renderer?.domElement]);
       
-      this.renderer.domElement.tabIndex = 1;
-      this.renderer.domElement.focus();
+      // this.renderer.domElement.tabIndex = 1;
+      // this.renderer.domElement.focus(); 
     }, 0);
     setTimeout(() => {
       console.log([`XXX`, 'hitArea', this.hitArea]);
@@ -223,7 +237,8 @@ export class InteractiveParticles extends ThreeAnimator{
       this.threeControls = new ThreeControls(this, this.camera as THREE.Camera, this.renderer?.domElement as HTMLElement);
       this.threeControls?.objects.push(this.hitArea);
       this.renderer.domElement.focus();
-      this.threeControls?.enable();
+      this.threeControls?.enable();   
+      this.threeControls.cir = c;
     }, 0);  
 
   }

@@ -2,8 +2,9 @@ import * as THREE from "three";
 import { makeObservable, observable, action } from "mobx";
 import ThreeAnimator from "./ThreeAnimator";
 import AbstractAnimator from "./AbstractAnimator";
+import EventEmitter from 'events';
 
-export default class ThreeControls {
+export default class ThreeControls extends EventEmitter {
   threeAnimator: ThreeAnimator | undefined;
   domElement: HTMLElement | undefined;
 
@@ -33,6 +34,7 @@ export default class ThreeControls {
   };  
 
   constructor(threeAnimator: ThreeAnimator, camera: THREE.Camera, domElement: HTMLElement) {
+    super();
     if (AbstractAnimator.isServer) return;
 
     this.threeAnimator = threeAnimator;
@@ -40,12 +42,6 @@ export default class ThreeControls {
     this.camera = camera;
 
     this.calculateRect();
-
-    makeObservable(this, {
-      enabled: observable,
-      enable: action,
-      disable: action,
-    });
   }
 
   calculateRect = (x?: number, y?: number, width?: number, height?: number) => {
@@ -94,6 +90,11 @@ export default class ThreeControls {
     document.body.removeEventListener('mousemove', this.onMouseMove);
   }
 
+  setMouse = (x: number, y: number) => {
+    this.mouse.setX(x);
+    this.mouse.setY(y);    
+  }
+
   onMouseMove = (event: MouseEvent) => {
     const touch = { x: event.clientX, y: event.clientY };
 
@@ -102,8 +103,7 @@ export default class ThreeControls {
 
     this.raycaster.setFromCamera(this.mouse, this.camera as THREE.Camera);
 
-    const intersects = this.raycaster.intersectObjects(this.objects);
-    
+    const intersects = this.raycaster.intersectObjects(this.objects);    
     
 		if (intersects.length > 0) {
 			const object = intersects[0].object;
@@ -113,15 +113,10 @@ export default class ThreeControls {
 
 			this.plane.setFromNormalAndCoplanarPoint(camera.getWorldDirection(this.plane.normal), object.position);
       this.cir?.position.set(intersects[0].point.x, intersects[0].point.y, 0); 
-      console.log([`XXX`, intersects[0].point.x, intersects[0].point.y]);   
-			// if (this.hovered !== object) {
-			// 	this.emit('interactive-out', { object: this.hovered });
-			// 	this.emit('interactive-over', { object });
-			// 	this.hovered = object;
-			// }
-			// else {
-			// 	this.emit('interactive-move', { object, intersectionData: this.intersectionData });
-			// }
+      //console.log([`XXX`, intersects[0].point.x, intersects[0].point.y]); 
+      this.setMouse(intersects[0].point.x, intersects[0].point.y);
+      this.emit('interactive-move', { object, intersectionData: this.intersectionData });
+
 		}
 		else {
 			this.intersectionData = null;

@@ -1,8 +1,10 @@
 import * as THREE from "three";
+import { autorun, trace } from "mobx"
 import ThreeAnimator from "../AnimationBuilder/ThreeAnimator";
-import image from "../../assets/sample-02.png";
+import image from "../../assets/sample-04.png";
 import TouchTexture from "./TouchTexture";
 import ThreeControls from "../AnimationBuilder/ThreeControls";
+import TWEEN from "@tweenjs/tween.js";
 
 const glslify = require('glslify');
 
@@ -40,9 +42,9 @@ export class InteractiveParticles extends ThreeAnimator{
 
   uniforms: InteractiveParticlesUniforms = {
     uTime: { value: 0 },
-    uRandom: { value: 1.0 },
-    uDepth: { value: 2.0 },
-    uSize: { value: 1.90 },
+    uRandom: { value: 0.0 },
+    uDepth: { value: 0.0 },
+    uSize: { value: 0.0 },
     uTextureSize: { value: new THREE.Vector2(this.width, this.height) },
     uTexture: { value: null },
     uTouch: { value: null },
@@ -52,6 +54,7 @@ export class InteractiveParticles extends ThreeAnimator{
 
   constructor() {
     super();
+
   }
 
   setC(canvas: HTMLCanvasElement) {
@@ -82,19 +85,20 @@ export class InteractiveParticles extends ThreeAnimator{
       this.initPoints();
       this.initTouch();
       this.initHitArea();
+      this.show();
       this.startSequence();
     });
 
     this.scene = new THREE.Scene();
+
+
   }
 
   initThree() {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
     this.camera.position.z = 300;
-    this.renderer = new THREE.WebGLRenderer({
-      //canvas: this.canvas,
-    });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.threeContainer?.appendChild(this.renderer.domElement);
     this.scene.add(this.container as THREE.Object3D);
@@ -210,6 +214,8 @@ export class InteractiveParticles extends ThreeAnimator{
   initTouch() {
     this.touchTexture = new TouchTexture(this);
     this.uniforms.uTouch.value = this.touchTexture.texture;
+
+ 
   }
 
   initHitArea() {
@@ -225,29 +231,40 @@ export class InteractiveParticles extends ThreeAnimator{
     c.position.set(100, 0, 0);
     this.container?.add(c);
 
-    setTimeout(() => {
-      console.log([`XXX`, this.renderer?.domElement]);
-      
-      // this.renderer.domElement.tabIndex = 1;
-      // this.renderer.domElement.focus(); 
-    }, 0);
-    setTimeout(() => {
-      console.log([`XXX`, 'hitArea', this.hitArea]);
-      
-      this.threeControls = new ThreeControls(this, this.camera as THREE.Camera, this.renderer?.domElement as HTMLElement);
-      this.threeControls?.objects.push(this.hitArea);
-      this.renderer.domElement.focus();
-      this.threeControls?.enable();   
-      this.threeControls.cir = c;
-    }, 0);  
+    this.threeControls = new ThreeControls(this, this.camera as THREE.Camera, this.renderer?.domElement as HTMLElement);
+    this.threeControls?.objects.push(this.hitArea);
+    //this.renderer.domElement.focus();
+    this.threeControls?.enable();   
+    this.threeControls.cir = c;
+
+    this.threeControls.addListener("interactive-move", (e) => {
+      console.log([`XXX`, 'interactive-move']);
+      const uv = e.intersectionData.uv;
+      console.log([`XXX`, 'interactive-move', uv]);
+      this.touchTexture?.addTouch(uv);
+      //if (this.touch) this.touch.addTouch(uv);
+    });
 
   }
 
+  show() {
+    new TWEEN.Tween(this.uniforms.uSize)
+      .to({ value: 1.5 }, 3000)
+      .start();
+    
+    new TWEEN.Tween(this.uniforms.uRandom)
+      .to({ value: 4.0 }, 3000)
+      .start();
+
+    new TWEEN.Tween(this.uniforms.uDepth)
+      .to({ value: 14.0 }, 3000)
+      .start(); 
+  }
+
   render() {
-    this.uniforms.uTime.value += 0.01;
-    this.uniforms.uSize.value = Math.random() * 0.1 + 0.5;
-    this.uniforms.uDepth.value = Math.random() * 0.1 + 0.5;
+    this.uniforms.uTime.value += 0.05;    
     this.renderer?.render(this.scene as THREE.Scene, this.camera as THREE.PerspectiveCamera);
+    this.touchTexture?.update();
   }
 
   protected resize(): void {
@@ -279,4 +296,5 @@ export class InteractiveParticles extends ThreeAnimator{
 }
 
 const interactiveParticles = new InteractiveParticles();
+
 export default interactiveParticles;

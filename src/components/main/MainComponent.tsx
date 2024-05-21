@@ -63,12 +63,6 @@ function MainComponent() {
       height: '100%',
       backgroundColor: "transparent",
     }}>
-      <Typography sx={{
-        color: "#ccc",
-        fontSize: 24
-      }}>
-        Main
-      </Typography>
       <Box 
         id="three-container"
         ref={threeContainer} 

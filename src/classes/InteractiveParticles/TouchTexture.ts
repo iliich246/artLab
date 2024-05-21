@@ -8,6 +8,10 @@ type Point = {
   force: number;
 }
 
+const easeOutSine = (t: number, b: number, c: number, d: number) => {
+	return c * Math.sin(t/d * (Math.PI/2)) + b;
+};
+
 export default class TouchTexture {
   parent: InteractiveParticles;
   size: number;
@@ -91,7 +95,7 @@ export default class TouchTexture {
 			const dx = last.x - point.x;
 			const dy = last.y - point.y;
 			const dd = dx * dx + dy * dy;
-			force = Math.min(dd * 10000, 1);
+			force = Math.min(dd * 500000, 1);
 		}
 		this.trail.push({ x: point.x, y: point.y, age: 0, force });
 	}
@@ -108,9 +112,9 @@ export default class TouchTexture {
 
 		let intensity = 1;
 		if (point.age < this.maxAge * 0.3) {
-			intensity = (point.age / (this.maxAge * 0.3), 0, 1, 1);
+			intensity = easeOutSine(point.age / (this.maxAge * 0.3), 0, 1, 1);
 		} else {
-			intensity = (1 - (point.age - this.maxAge * 0.3) / (this.maxAge * 0.7), 0, 1, 1);
+			intensity = easeOutSine(1 - (point.age - this.maxAge * 0.3) / (this.maxAge * 0.7), 0, 1, 1);
 		}
 
 		intensity *= point.force;

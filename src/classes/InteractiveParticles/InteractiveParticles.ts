@@ -154,7 +154,7 @@ export class InteractiveParticles extends ThreeAnimator{
 			fragmentShader: glslify(fragShader),
 			depthTest: false,
 			transparent: true,
-			// blending: THREE.AdditiveBlending
+			blending: THREE.AdditiveBlending
 		}); 
     
     const geometry = new THREE.InstancedBufferGeometry();
@@ -213,9 +213,7 @@ export class InteractiveParticles extends ThreeAnimator{
 
   initTouch() {
     this.touchTexture = new TouchTexture(this);
-    this.uniforms.uTouch.value = this.touchTexture.texture;
-
- 
+    this.uniforms.uTouch.value = this.touchTexture.texture; 
   }
 
   initHitArea() {

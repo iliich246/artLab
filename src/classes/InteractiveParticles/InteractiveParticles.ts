@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { autorun, trace } from "mobx"
 import ThreeAnimator from "../AnimationBuilder/ThreeAnimator";
 import image from "../../assets/sample-04.png";
 import TouchTexture from "./TouchTexture";
@@ -287,9 +286,7 @@ export class InteractiveParticles extends ThreeAnimator{
     this.fovHeight = 2 * Math.tan((this.camera.fov * Math.PI) / 180 / 2) * this.camera.position.z;
     const scale = this.fovHeight / this.height;
     this.object3D.scale.set(scale, scale, 1);
-		this.hitArea.scale.set(scale, scale, 1);
-
-      
+		this.hitArea.scale.set(scale, scale, 1);     
   }
 }
 

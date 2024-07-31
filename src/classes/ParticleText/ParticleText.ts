@@ -58,6 +58,7 @@ export class ParticleText extends ThreeAnimator {
 
         this.initThree();
         this.initParticles();
+        this.initListeners();
         this.startSequence();
       });
     });
@@ -89,6 +90,15 @@ export class ParticleText extends ThreeAnimator {
     this.planeArea = new THREE.Mesh(geometry, material);
     this.planeArea.visible = false;
     this.createText();
+  }
+
+  initListeners() {
+    window.addEventListener('mousemove', this.onMouseMove, false);
+  }
+
+  onMouseMove = (event: MouseEvent) => {
+    this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
   }
 
   visibleHeightAtZDepth(depth: number, camera: THREE.PerspectiveCamera) {
@@ -191,7 +201,7 @@ export class ParticleText extends ThreeAnimator {
     const geometry1= new THREE.CircleGeometry( 5, 32 ); 
     const material1 = new THREE.MeshBasicMaterial( { color: 0xffff00 } ); 
     const circle = new THREE.Mesh( geometry1, material1 ); 
-    this.scene.add( circle );
+    this.scene?.add( circle );
     
   }
 
@@ -200,7 +210,7 @@ export class ParticleText extends ThreeAnimator {
     
 		const time = ((.001 * performance.now())%12)/12;
 		const zigzagTime = (1 + (Math.sin( time * 2 * Math.PI )))/6;
-    //console.log([`XXX`, zigzagTime]);
+
     if (!this.camera) return;
 
     this.raycaster.setFromCamera( this.mouse, this.camera );
@@ -314,7 +324,9 @@ export class ParticleText extends ThreeAnimator {
 
 		    }
 		}
+
     this.renderer?.render(this.scene as THREE.Scene, this.camera as THREE.PerspectiveCamera);
+    
   }
 
   distance (x1: number, y1, x2, y2) {	   

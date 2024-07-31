@@ -27,10 +27,13 @@ export class ParticleText extends ThreeAnimator {
   geometryCopy: THREE.BufferGeometry | undefined;
 
   raycaster = new THREE.Raycaster();
-  mouse = new THREE.Vector2(-200, 200);
+  mouse = new THREE.Vector2(0, 0);
+
+  button = false;
+  currenPosition: THREE.Vector3 | undefined;
 
   data = {
-    text: 'BIG\nPENIS',
+    text: 'SOSITE\nPENIS',
     amount: 1500,
     particleSize: 1,
     particleColor: 0xffffff,
@@ -94,12 +97,37 @@ export class ParticleText extends ThreeAnimator {
 
   initListeners() {
     window.addEventListener('mousemove', this.onMouseMove, false);
+    window.addEventListener('mousedown', this.onMouseDown, false);
+    window.addEventListener('mouseup', this.onMouseUp, false);
   }
 
   onMouseMove = (event: MouseEvent) => {
     this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
   }
+
+  onMouseUp = () => {
+
+		this.button = false;
+		this.data.ease = .05;
+	}
+
+  onMouseDown = (event: MouseEvent) =>{
+		
+		this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+		this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+		const vector = new THREE.Vector3( this.mouse.x, this.mouse.y, 0.5);
+		vector.unproject( this.camera );
+		const dir = vector.sub( this.camera.position ).normalize();
+		const distance = - this.camera.position.z / dir.z;
+		this.currenPosition = this.camera.position.clone().add( dir.multiplyScalar( distance ) );
+		
+		const pos = this.particles.geometry.attributes.position;
+		this.button = true;
+		this.data.ease = .01;
+		
+	}
 
   visibleHeightAtZDepth(depth: number, camera: THREE.PerspectiveCamera) {
 
@@ -253,7 +281,7 @@ export class ParticleText extends ThreeAnimator {
 		    	let d = ( dx = mx - px ) * dx + ( dy = my - py ) * dy;
 		    	const f = - this.data.area/d;
 
-		    	if( this.buttom ){ 
+		    	if( this.button ){ 
 
 		    		const t = Math.atan2( dy, dx );
 		    		px -= f * Math.cos( t );
